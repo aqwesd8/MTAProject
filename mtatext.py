@@ -106,9 +106,9 @@ class RunText(SampleBase):
         black = graphics.Color(0,0,0)
         pos = offscreen_canvas.width
         stations = self.args.stations
-        time_step = 0.05
+        time_step = 0.08
         freeze_time = 1.5
-        train_update_time = 60
+        train_update_time = 15
         trains_queue = Queue()
 
         pos1 = 0
@@ -116,7 +116,7 @@ class RunText(SampleBase):
         pos2 = 0
         freeze2 = int(freeze_time/time_step) 
         train_update = 0
-        trains = [[]]
+        trains = None
         while True:
             offscreen_canvas.Clear()
 
@@ -125,31 +125,34 @@ class RunText(SampleBase):
                 train_thread.start()
                 train_update = int(train_update_time/time_step)
 
-            if(len(trains_queue)>0):
+            if(trains_queue.qsize()>0):
                 trains = trains_queue.get()
-                
-            reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
-            reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[1]["destination"], trains[1]["mins_left"], 1, pos2)
+            
+            if trains:
+                reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
+                reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[1]["destination"], trains[1]["mins_left"], 1, pos2)
+            
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
             time.sleep(time_step)
+            
+            if trains:
+                if pos1==0 and freeze1>0:
+                    freeze1-=1
+                else:
+                    pos1+=1
+                    freeze1 = int(freeze_time/time_step)
 
-            if pos1==0 and freeze1>0:
-                freeze1-=1
-            else:
-                pos1+=1
-                freeze1 = int(freeze_time/time_step)
-
-            if pos2==0 and freeze2>0:
-                freeze2-=1
-            else:
-                pos2+=1
-                freeze2 = int(freeze_time/time_step) 
+                if pos2==0 and freeze2>0:
+                    freeze2-=1
+                else:
+                    pos2+=1
+                    freeze2 = int(freeze_time/time_step) 
 
 
-            if reset1<0:
-                pos1 = 0
-            if reset2<0:
-                pos2 = 0
+                if reset1<0:
+                    pos1 = 0
+                if reset2<0:
+                    pos2 = 0
 
             train_update-=1
 
