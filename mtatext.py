@@ -1,6 +1,6 @@
 # Display a runtext with double-buffering.
 import sys
-sys.path.appen("matrix/bindings/python/samples")
+sys.path.append("matrix/bindings/python/samples")
 
 from samplebase import SampleBase
 from rgbmatrix import graphics
