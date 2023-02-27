@@ -6,23 +6,12 @@ from util import *
 from feeds import *
 
 app = Flask(__name__)
+feeds = [gtfs_realtime_pb2.FeedMessage() for i in range(len(ALL_FEEDS))]
 
-@app.route("/train-schedule/<station_names>")
-def train_schedule(station_names):
-    station_names = station_names.split(',')
-    mta_api_key = "ZhfhmnhoOd5hnNRtyT2g18qfyMuJp1TA1bSQIvfd"
 
-    feeds = [gtfs_realtime_pb2.FeedMessage() for i in range(len(ALL_FEEDS))]
-    responses = []
-    for mta_url in ALL_FEEDS:
-        responses.append(requests.get(mta_url, headers={"x-api-key":mta_api_key}))
-    
-
-    for (feed, response) in zip(feeds, responses):
-        feed.ParseFromString(response.content)
-
-    # Parse the API response to find the schedule for the F train at the specified station
-    out = []
+def getAllTrains(feeds, station_names):
+    trains = []
+    now = datetime.datetime.now()
     for feed in feeds:
         for train in feed.entity:
             if train.HasField('trip_update'):
@@ -33,11 +22,38 @@ def train_schedule(station_names):
                             destination_id = train.trip_update.stop_time_update[-1].stop_id
                             destination = getStationNameFromID(destination_id)
                             dt = datetime.datetime.fromtimestamp(stop_time.arrival.time)
-                            dt = dt.strftime("%I:%M%p")
-                            readable = "%s bound %s train, arriving at %s"%(destination, route_name, dt)
-                            out.append(readable)
+                            #dt = dt.strftime("%I:%M%p")
+                            mins_delta = dt-now
+                            mins_left = int(mins_delta.seconds/60)
+                            #readable = "%s bound %s train, arriving at %s"%(destination, route_name, dt)
+                            if (mins_delta.days==0 and mins_delta.seconds>=0 and mins_delta.microseconds>=0):
+                                train_rep = {"route_id": route_name, "destination" : destination, "mins_left" : mins_left}
+                                trains.append(train_rep)
+
+    return trains
+
+def getFirstNTrains(n, trains):
+    trains.sort(key = lambda t : t["mins_left"])
+    return trains[0:n]
+
+
+@app.route("/train-schedule/<station_names>")
+def train_schedule(station_names):
+    station_names = station_names.split(',')
+    mta_api_key = "ZhfhmnhoOd5hnNRtyT2g18qfyMuJp1TA1bSQIvfd"
+    responses = []
+    for mta_url in ALL_FEEDS:
+        responses.append(requests.get(mta_url, headers={"x-api-key":mta_api_key}))
     
-    return out
+
+    for (feed, response) in zip(feeds, responses):
+        feed.ParseFromString(response.content)
+
+    # Parse the API response to find the schedule for the F train at the specified station
+    trains = getAllTrains(feeds, station_names)
+    trains = getFirstNTrains(5, trains)
+    
+    return jsonify(trains)
 
 if __name__ == "__main__":
     app.run(debug=True)

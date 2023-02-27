@@ -91,13 +91,6 @@ class RunText(SampleBase):
         freeze2 = int(freeze_time/time_step) 
         while True:
             offscreen_canvas.Clear()
-            #printTrainBullet(offscreen_canvas,x=31,y=16,r=0,b=106,g=9)
-            # len = graphics.DrawText(offscreen_canvas, font, pos, 20, textColor, my_text)
-            # pos -= 1
-            # fillRectangle(graphics, offscreen_canvas, 0, 0, 24, offscreen_canvas.height, black)
-            # if (pos + len < 24):
-            #    pos = offscreen_canvas.width
-            
 
             reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, "Carroll St", 5, 0, pos1)
             reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,"Coney Island - Stillwell Av", 10, 1, pos2)

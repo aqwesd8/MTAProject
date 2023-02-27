@@ -3,7 +3,6 @@ import zipfile
 import io
 import csv
 from collections import defaultdict
-from rgbmatrix import graphics
 
 STATIC_MTA_DATA_PATH = "static_mta_data"
 STATION_ID_PATH = STATIC_MTA_DATA_PATH+"/stops.txt"
@@ -45,12 +44,3 @@ def getStationNameFromID(station_id):
             station_name = station["stop_name"]
             station_id_to_name[station_id] = station_name
             return station_name
-
-### MATRIX HELPER FUNCTIONS ###
-
-def fillRectangle(gx, canvas, xUL, yUL, xBR, yBR, color):
-    if xUL>=xBR or yUL>=yBR:
-        print("ERROR, bad rectangle boundaries.")
-    else:
-        for x in range(xUL,xBR+1):
-            gx.DrawLine(canvas, x,yUL,x,yBR,color)
