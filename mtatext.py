@@ -9,7 +9,7 @@ from PIL import Image
 
 import requests
 import json
-import threading
+import threading.Thread as Thread
 
 ### MATRIX HELPER FUNCTIONS ###
 
@@ -76,6 +76,15 @@ def getTrains(stations):
     print(trains[0])
 
 
+class GetTrainsThread(Thread):
+    def __init__(self, stations):
+        Thread.__init__(self)
+        self.trains = []
+        self.stations = stations
+
+    def run(self):
+        self.trains = getTrains(self.stations)
+
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
@@ -105,7 +114,10 @@ class RunText(SampleBase):
             offscreen_canvas.Clear()
 
             if train_update==0:
-                trains = threading.Thread(target=getTrains(stations))
+                train_thread = GetTrainsThread(stations)
+                train_thread.start()
+                train_thread.join()
+                trains = train_thread.trains
                 train_update = int(train_update_time/time_step)
 
             reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
