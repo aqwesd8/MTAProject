@@ -10,6 +10,7 @@ from PIL import Image
 import requests
 import json
 from threading import Thread
+from queue import Queue
 
 ### MATRIX HELPER FUNCTIONS ###
 
@@ -77,16 +78,18 @@ def getTrains(stations):
 
 
 class GetTrainsThread(Thread):
-    def __init__(self, stations):
+    def __init__(self, stations, queue):
         Thread.__init__(self)
         self.trains = []
         self.stations = stations
+        self.queue = queue
     
     def setTrains(self, trains):
         self.trains = trains
 
     def run(self):
         self.trains = getTrains(self.stations)
+        self.queue.put(self.trains)
 
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
@@ -106,6 +109,7 @@ class RunText(SampleBase):
         time_step = 0.05
         freeze_time = 1.5
         train_update_time = 60
+        trains_queue = Queue()
 
         pos1 = 0
         freeze1 = int(freeze_time/time_step) 
@@ -117,9 +121,13 @@ class RunText(SampleBase):
             offscreen_canvas.Clear()
 
             if train_update==0:
-                train_thread = GetTrainsThread(stations)
-                trains = getTrains(stations)
+                train_thread = GetTrainsThread(stations,trains_queue)
+                train_thread.start()
                 train_update = int(train_update_time/time_step)
+
+            if(len(trains_queue)>0):
+                trains = trains_queue.get()
+                
             reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
             reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[1]["destination"], trains[1]["mins_left"], 1, pos2)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
