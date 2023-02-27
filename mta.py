@@ -34,6 +34,7 @@ def getAllTrains(feeds, station_names):
 
 def getFirstNTrains(n, trains):
     trains.sort(key = lambda t : t["mins_left"])
+    n = min(n, len(trains))
     return trains[0:n]
 
 

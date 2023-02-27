@@ -7,6 +7,9 @@ from rgbmatrix import graphics
 import time
 from PIL import Image
 
+import requests
+import json
+
 ### MATRIX HELPER FUNCTIONS ###
 
 def fillRectangle(gx, canvas, xUL=0, yUL=0, xBR=63, yBR=31, color=graphics.Color(0,0,0)):
@@ -65,12 +68,16 @@ def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left,
 
     return text_width-text_frame
 
+def getTrains(stations):
+    station_string = ",".join(stations)
+    response = requests.get("http://localhost:/5000/train-schedule/%s"%(station_string))
+    trains = json.loads(response)
 
 
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
-        self.parser.add_argument("-t", "--text", help="The text to scroll on the RGB LED panel", default="Hello world!")
+        self.parser.add_argument("-s", "--stations", help="List of stations", default=["F21"])
 
     def run(self):
         offscreen_canvas = self.matrix.CreateFrameCanvas()
@@ -81,21 +88,28 @@ class RunText(SampleBase):
         textColor = graphics.Color(200, 200, 200)
         black = graphics.Color(0,0,0)
         pos = offscreen_canvas.width
-        my_text = self.args.text
+        stations = self.args.stations
         time_step = 0.05
         freeze_time = 1.5
+        train_update_time = 60
 
         pos1 = 0
         freeze1 = int(freeze_time/time_step) 
         pos2 = 0
         freeze2 = int(freeze_time/time_step) 
+        train_update = 0
+        trains = []
         while True:
             offscreen_canvas.Clear()
 
-            reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, "Carroll St", 5, 0, pos1)
-            reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,"Coney Island - Stillwell Av", 10, 1, pos2)
-            time.sleep(time_step)
+            if train_update==0:
+                trains = getTrains(stations)
+                train_update = int(train_update_time/time_step)
+
+            reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
+            reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[1]["destination"], trains[1]["mins_left"], 1, pos2)
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
+            time.sleep(time_step)
 
             if pos1==0 and freeze1>0:
                 freeze1-=1
@@ -114,6 +128,8 @@ class RunText(SampleBase):
                 pos1 = 0
             if reset2<0:
                 pos2 = 0
+
+            train_update-=1
 
 
 
