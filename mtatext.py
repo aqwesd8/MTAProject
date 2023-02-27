@@ -106,9 +106,10 @@ class RunText(SampleBase):
         black = graphics.Color(0,0,0)
         pos = offscreen_canvas.width
         stations = self.args.stations
-        time_step = 0.08
+        time_step = 0.05
         freeze_time = 1.5
         train_update_time = 15
+        secondary_switch_time = 5
         trains_queue = Queue()
 
         pos1 = 0
@@ -116,7 +117,9 @@ class RunText(SampleBase):
         pos2 = 0
         freeze2 = int(freeze_time/time_step) 
         train_update = 0
+        switch_time = int(secondary_switch_time/time_step)
         trains = None
+        secondary_train = 1
         while True:
             offscreen_canvas.Clear()
 
@@ -129,8 +132,12 @@ class RunText(SampleBase):
                 trains = trains_queue.get()
             
             if trains:
+                if switch_time==0:
+                    secondary_train = (secondary_train+1)%len(trains)
+                    switch_time = int(secondary_switch_time/time_step)
+
                 reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
-                reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[1]["destination"], trains[1]["mins_left"], 1, pos2)
+                reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[secondary_train]["destination"], trains[secondary_train]["mins_left"], 1, pos2)
             
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
             time.sleep(time_step)
