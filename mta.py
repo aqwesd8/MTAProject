@@ -52,7 +52,7 @@ def train_schedule(station_names):
 
     # Parse the API response to find the schedule for the F train at the specified station
     trains = getAllTrains(feeds, station_names)
-    trains = getFirstNTrains(5, trains)
+    trains = getFirstNTrains(6, trains)
     
     return jsonify(trains)
 

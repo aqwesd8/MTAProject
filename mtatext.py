@@ -120,6 +120,7 @@ class RunText(SampleBase):
         switch_time = int(secondary_switch_time/time_step)
         trains = None
         secondary_train = 1
+        primary_train = 0
         while True:
             offscreen_canvas.Clear()
 
@@ -133,10 +134,13 @@ class RunText(SampleBase):
             
             if trains:
                 if switch_time==0:
-                    secondary_train = (secondary_train+1)%len(trains)
+                    secondary_train = max(1,(secondary_train+1)%len(trains))
+                    primary_train = secondary_train-1
                     switch_time = int(secondary_switch_time/time_step)
+                else:
+                    switch_time-=1
 
-                reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[0]["destination"], trains[0]["mins_left"], 0, pos1)
+                reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[primary_train]["destination"], trains[primary_train]["mins_left"], 0, pos1)
                 reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[secondary_train]["destination"], trains[secondary_train]["mins_left"], 1, pos2)
             
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
