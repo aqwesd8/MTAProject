@@ -138,9 +138,9 @@ class RunText(SampleBase):
                 else:
                     switch_time-=1
 
-                reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[primary_train]["destination"], trains[primary_train]["mins_left"], 0, pos1)
+                reset1 = printTrainLine(graphics, offscreen_canvas, trains[primary_train]["route_id"], font, min_font, trains[primary_train]["destination"], trains[primary_train]["mins_left"], 0, pos1)
                 if len(trains) > 1:
-                    reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[secondary_train]["destination"], trains[secondary_train]["mins_left"], 1, pos2)
+                    reset2 = printTrainLine(graphics, offscreen_canvas, trains[secondary_train]["route_id"], font, min_font,trains[secondary_train]["destination"], trains[secondary_train]["mins_left"], 1, pos2)
                 else:
                     reset2 = -1
             
