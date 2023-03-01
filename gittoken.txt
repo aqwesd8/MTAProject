@@ -1,0 +1,3 @@
+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
+
+pyuwsgi --http 127.0.0.1:5000 --master -p 4 -w mta:app

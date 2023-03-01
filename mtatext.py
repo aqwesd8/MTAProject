@@ -45,7 +45,9 @@ def scrollText(gx, canvas, leftBoundary, rightBoudary, height, color, text):
 
 #hardcoded now, update for different trains
 def printTrainBulletId(canvas, x, y, route_id):
-    printTrainBullet(canvas, x, y, 0, 106, 9)
+    #printTrainBullet(canvas, x, y, 0, 106, 9)
+    image = Image.open("pixelMaps/%strain.ppm"%(route_id)).convert('RGB')
+    canvas.SetImage(image, x, y)
 
 #position is 0 or 1
 def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left, position, text_frame):
@@ -60,17 +62,14 @@ def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left,
     text_width = gx.DrawText(canvas, font, destination_position[0]-text_frame, destination_position[1], text_color, destination)
     fillRectangle(gx, canvas, xBR=left_boundary, yUL=position*16, yBR=16+position*16)
     fillRectangle(gx, canvas, xUL=right_boundary, yUL=position*16, yBR=16+position*16)
-    image = Image.open("fiveTrain.ppm").convert('RGB')
-    canvas.SetImage(image, bullet_position[0],bullet_position[1])
-
-    #printTrainBulletId(canvas, bullet_position[0], bullet_position[1], route_id)
+    printTrainBulletId(canvas, bullet_position[0], bullet_position[1], route_id)
 
     gx.DrawText(canvas, min_font, mins_left_position[0], mins_left_position[1], text_color, "%sm"%(mins_left))
 
     return text_width-text_frame
 
 def getTrains(stations):
-    station_string = ",".join(stations)
+    station_string = ",".join(stations) if len(stations)>1 else stations[0]
     response = requests.get("http://localhost:5000/train-schedule/%s"%(station_string))
     trains = json.loads(response.text)
     return trains
@@ -93,7 +92,7 @@ class GetTrainsThread(Thread):
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
         super(RunText, self).__init__(*args, **kwargs)
-        self.parser.add_argument("-s", "--stations", help="List of stations", default=["F21"])
+        self.parser.add_argument("-s", "--stations", help="List of stations", nargs="*", default=["F21"])
 
     def run(self):
         offscreen_canvas = self.matrix.CreateFrameCanvas()
