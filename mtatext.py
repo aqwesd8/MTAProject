@@ -51,7 +51,7 @@ def printTrainBulletId(canvas, x, y, route_id):
 def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left, position, text_frame):
     height = 7 + position*17
     bullet_position = (0, height - 7) #was 6,height
-    destination_position = (bullet_position[0]+10, height+int(font.baseline/2)-1)
+    destination_position = (bullet_position[0]+16, height+int(font.baseline/2)-1)
     mins_left_position = (48, height+int(font.baseline/2)-1)
     text_color = gx.Color(100,100,100)
     left_boundary = destination_position[0]-1
