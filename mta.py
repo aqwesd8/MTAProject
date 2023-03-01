@@ -12,16 +12,6 @@ irt_feeds = [gtfs_realtime_pb2.FeedMessage() for i in range(len(IRT_FEEDS))]
 def getAllTrains(feeds, station_names):
     trains = []
     now = datetime.datetime.now()
-    
-    bmt_indicators = [ord(station[0])>=65 and ord(station[0])<=90 for station in station_names]
-    has_bmt = any(bmt_indicators)
-    has_irt = not all(bmt_indicators)
-    feeds = []
-    if has_bmt:
-        feeds = bmt_feeds
-
-    if has_irt:
-        feeds += irt_feeds
 
     for feed in feeds:
         for train in feed.entity:
@@ -54,7 +44,21 @@ def train_schedule(station_names):
     station_names = station_names.split(',')
     mta_api_key = "ZhfhmnhoOd5hnNRtyT2g18qfyMuJp1TA1bSQIvfd"
     responses = []
-    for mta_url in ALL_FEEDS:
+
+    bmt_indicators = [ord(station[0])>=65 and ord(station[0])<=90 for station in station_names]
+    has_bmt = any(bmt_indicators)
+    has_irt = not all(bmt_indicators)
+    feeds = []
+    feed_urls = []
+    if has_bmt:
+        feeds = bmt_feeds
+        feed_urls = BMT_FEEDS
+
+    if has_irt:
+        feeds += irt_feeds
+        feed_urls += IRT_FEEDS
+        
+    for mta_url in feed_urls:
         responses.append(requests.get(mta_url, headers={"x-api-key":mta_api_key}))
     
 
