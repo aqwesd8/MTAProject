@@ -50,7 +50,7 @@ def printTrainBulletId(canvas, x, y, route_id):
 #position is 0 or 1
 def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left, position, text_frame):
     height = 7 + position*17
-    bullet_position = (6, height)
+    bullet_position = (0, height - 7) #was 6,height
     destination_position = (bullet_position[0]+10, height+int(font.baseline/2)-1)
     mins_left_position = (48, height+int(font.baseline/2)-1)
     text_color = gx.Color(100,100,100)
@@ -60,11 +60,10 @@ def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left,
     text_width = gx.DrawText(canvas, font, destination_position[0]-text_frame, destination_position[1], text_color, destination)
     fillRectangle(gx, canvas, xBR=left_boundary, yUL=position*16, yBR=16+position*16)
     fillRectangle(gx, canvas, xUL=right_boundary, yUL=position*16, yBR=16+position*16)
-    #image = Image.open("fiveTrain.ppm").convert('RGB')
-    #image = image.resize(13,14)
-    #canvas.SetImage(image, bullet_position[0],bullet_position[1])
+    image = Image.open("fiveTrain.ppm").convert('RGB')
+    canvas.SetImage(image, bullet_position[0],bullet_position[1])
 
-    printTrainBulletId(canvas, bullet_position[0], bullet_position[1], route_id)
+    #printTrainBulletId(canvas, bullet_position[0], bullet_position[1], route_id)
 
     gx.DrawText(canvas, min_font, mins_left_position[0], mins_left_position[1], text_color, "%sm"%(mins_left))
 
@@ -134,14 +133,17 @@ class RunText(SampleBase):
             
             if trains:
                 if switch_time==0:
-                    secondary_train = max(1,(secondary_train+1)%len(trains))
+                    secondary_train = max(1,(secondary_train+2)%len(trains))
                     primary_train = secondary_train-1
                     switch_time = int(secondary_switch_time/time_step)
                 else:
                     switch_time-=1
 
                 reset1 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font, trains[primary_train]["destination"], trains[primary_train]["mins_left"], 0, pos1)
-                reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[secondary_train]["destination"], trains[secondary_train]["mins_left"], 1, pos2)
+                if len(trains) > 1:
+                    reset2 = printTrainLine(graphics, offscreen_canvas, "5", font, min_font,trains[secondary_train]["destination"], trains[secondary_train]["mins_left"], 1, pos2)
+                else:
+                    reset2 = -1
             
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
             time.sleep(time_step)
