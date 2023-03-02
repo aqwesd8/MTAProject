@@ -122,7 +122,7 @@ class RunText(SampleBase):
         while True:
             offscreen_canvas.Clear()
 
-            if train_update==0:
+            if train_update==0 and trains_queue.qsize()==0:
                 train_thread = GetTrainsThread(stations,trains_queue)
                 train_thread.start()
                 train_update = int(train_update_time/time_step)
