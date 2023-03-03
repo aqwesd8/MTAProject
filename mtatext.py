@@ -108,7 +108,7 @@ class GetFramesThread(Thread):
         primary_train = 0
 
         while True:
-            if self.queue.qsize<self.MAX_FRAMES:
+            if self.queue.qsize()<self.MAX_FRAMES:
                 self.canvases[i].Clear()
 
                 if train_update==0 and trains_queue.qsize()==0:
