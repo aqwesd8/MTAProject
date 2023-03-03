@@ -87,8 +87,8 @@ class RunText(SampleBase):
         stations = self.args.stations
         time_step = 0.1
         freeze_time = 2.5
-        train_update_time = 25
-        secondary_switch_time = 10
+        train_update_time = 30
+        secondary_switch_time = 15
         trains_queue = Queue()
 
         pos1 = 0
