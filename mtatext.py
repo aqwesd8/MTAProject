@@ -71,13 +71,14 @@ class GetTrainsThread(Thread):
         self.queue.put(self.trains)
 
 class GetFramesThread(Thread):
-    MAX_FRAMES = 24
+    
     def __init__(self, stations, queue, matrix):
         Thread.__init__(self)
+        self.MAX_FRAMES = 24
         self.queue = queue
         self.matrix = matrix
         self.stations = stations
-        self.canvases = [self.matrix.CreateFrameCanvas() for i in range(MAX_FRAMES)]
+        self.canvases = [self.matrix.CreateFrameCanvas() for i in range(self.MAX_FRAMES)]
 
 
     def run(self):
@@ -107,7 +108,7 @@ class GetFramesThread(Thread):
         primary_train = 0
 
         while True:
-            if self.queue.qsize<MAX_FRAMES:
+            if self.queue.qsize<self.MAX_FRAMES:
                 self.canvases[i].Clear()
 
                 if train_update==0 and trains_queue.qsize()==0:
@@ -154,7 +155,7 @@ class GetFramesThread(Thread):
                         pos2 = 0
 
                 train_update-=1
-                i = (i+1)%MAX_FRAMES
+                i = (i+1)%self.MAX_FRAMES
 
 
 
