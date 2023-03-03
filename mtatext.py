@@ -85,7 +85,7 @@ class RunText(SampleBase):
         black = graphics.Color(0,0,0)
         pos = offscreen_canvas.width
         stations = self.args.stations
-        time_step = 0.1
+        time_step = 0.08
         freeze_time = 2.5
         train_update_time = 30
         secondary_switch_time = 15
