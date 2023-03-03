@@ -200,7 +200,7 @@ class RunText(SampleBase):
             if frame_q.qsize()>0:
                 offscreen_canvas = frame_q.get()
 
-            self.matrix.SwapOnVSync(offscreen_canvas)
+                self.matrix.SwapOnVSync(offscreen_canvas)
 
             # offscreen_canvas.Clear()
 
