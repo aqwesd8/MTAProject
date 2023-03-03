@@ -41,7 +41,7 @@ def getFirstNTrains(n, trains):
 
 @app.route("/train-schedule/<station_names>")
 def train_schedule(station_names):
-    station_names = station_names.split(',')
+    #station_names = station_names.split(',')
     mta_api_key = "ZhfhmnhoOd5hnNRtyT2g18qfyMuJp1TA1bSQIvfd"
     responses = []
 
@@ -69,7 +69,7 @@ def train_schedule(station_names):
     trains = getAllTrains(feeds, station_names)
     trains = getFirstNTrains(6, trains)
     
-    return jsonify(trains)
+    return trains
 
 if __name__ == "__main__":
     app.run(debug=True)
