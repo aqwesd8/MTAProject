@@ -152,7 +152,7 @@ class RunText(SampleBase):
             train_update-=1
             elasped = time.time()-now
 
-            time.sleep(time_step - elasped)
+            time.sleep(max(0,(time_step - elasped))
 
 
 
