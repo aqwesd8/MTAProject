@@ -197,7 +197,7 @@ class RunText(SampleBase):
         main_thread.start()
         while True:
             now = time.time()
-            if frame_q.qsize>0:
+            if frame_q.qsize()>0:
                 offscreen_canvas = frame_q.get()
 
             self.matrix.SwapOnVSync(offscreen_canvas)
