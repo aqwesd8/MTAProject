@@ -11,6 +11,7 @@ import requests
 import json
 from threading import Thread
 from queue import Queue
+import mta
 
 ### MATRIX HELPER FUNCTIONS ###
 
@@ -21,31 +22,12 @@ def fillRectangle(gx, canvas, xUL=0, yUL=0, xBR=63, yBR=31, color=graphics.Color
         for x in range(xUL,xBR+1):
             gx.DrawLine(canvas, x,yUL,x,yBR,color)
 
-def printTrainBullet(canvas, x=6, y=6, r=0,b=0,g=0):
-    pixMap = [[0,0,0,0,0,1,1,1,1,0,0,0,0,0],
-    [0,0,0,1,1,1,1,1,1,1,1,0,0,0],
-    [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
-    [0,1,1,1,0,0,0,0,0,0,1,1,1,0],
-    [0,1,1,1,0,0,1,1,1,1,1,1,1,0],
-    [1,1,1,1,0,0,1,1,1,1,1,1,1,1],
-    [1,1,1,1,0,0,0,0,0,0,1,1,1,1],
-    [1,1,1,1,1,1,1,1,0,0,1,1,1,1],
-    [0,1,1,1,0,0,1,1,0,0,1,1,1,0],
-    [0,1,1,1,1,0,0,0,0,1,1,1,1,0],
-    [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
-    [0,0,0,1,1,1,1,1,1,1,1,0,0,0],
-    [0,0,0,0,0,1,1,1,1,0,0,0,0,0]]
-    for i in range(14):
-        for j in range(13):
-            color = (0,0,0) if pixMap[j][i]==0 else (r,b,g)
-            canvas.SetPixel(i+(x-6),j+(y-6),color[0],color[1],color[2])
 
 def scrollText(gx, canvas, leftBoundary, rightBoudary, height, color, text):
     text_length = graphics.DrawText(offscreen_canvas, font, pos, 20, textColor, my_text)
 
 #hardcoded now, update for different trains
 def printTrainBulletId(canvas, x, y, route_id):
-    #printTrainBullet(canvas, x, y, 0, 106, 9)
     image = Image.open("pixelMaps/%strain.ppm"%(route_id)).convert('RGB')
     canvas.SetImage(image, x, y)
 
@@ -70,9 +52,8 @@ def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left,
 
 def getTrains(stations):
     station_string = ",".join(stations) if len(stations)>1 else stations[0]
-    response = requests.get("http://localhost:5000/train-schedule/%s"%(station_string))
-    trains = json.loads(response.text)
-    return trains
+    #response = requests.get("http://localhost:5000/train-schedule/%s"%(station_string))
+    return mta.train_schedule(stations)
 
 
 class GetTrainsThread(Thread):
