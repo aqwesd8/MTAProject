@@ -86,9 +86,9 @@ class RunText(SampleBase):
         pos = offscreen_canvas.width
         stations = self.args.stations
         time_step = 0.1
-        freeze_time = 1.5
-        train_update_time = 15
-        secondary_switch_time = 5
+        freeze_time = 2.5
+        train_update_time = 25
+        secondary_switch_time = 10
         trains_queue = Queue()
 
         pos1 = 0
