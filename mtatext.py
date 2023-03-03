@@ -101,6 +101,8 @@ class RunText(SampleBase):
         secondary_train = 1
         primary_train = 0
         while True:
+            now = time.time()
+
             offscreen_canvas.Clear()
 
             if train_update==0 and trains_queue.qsize()==0:
@@ -126,7 +128,7 @@ class RunText(SampleBase):
                     reset2 = -1
             
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
-            time.sleep(time_step)
+            
             
             if trains:
                 if pos1==0 and freeze1>0:
@@ -148,6 +150,9 @@ class RunText(SampleBase):
                     pos2 = 0
 
             train_update-=1
+            elasped = time.time()-now
+
+            time.sleep(time_step - elasped)
 
 
 
