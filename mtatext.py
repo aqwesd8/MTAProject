@@ -33,7 +33,7 @@ def printTrainBulletId(canvas, x, y, route_id):
 
 #position is 0 or 1
 def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left, position, text_frame):
-    height = 7 + position*19
+    height = 8 + position*17
     bullet_position = (0, height - 7) #was 6,height
     destination_position = (bullet_position[0]+16, height+int(font.baseline/2)-1)
     mins_left_position = (48, height+int(font.baseline/2)-1)
