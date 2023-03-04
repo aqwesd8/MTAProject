@@ -102,7 +102,7 @@ class RunText(SampleBase):
         secondary_train = 1
         primary_train = 0
         while True:
-            now = time.now()
+            now = time.time()
             offscreen_canvas.Clear()
 
             if train_update==0 and trains_queue.qsize()==0:
@@ -151,7 +151,7 @@ class RunText(SampleBase):
 
             train_update-=1
 
-            elapsed = time.now()-now
+            elapsed = time.time()-now
             time.sleep(max(0,time_step-elapsed))
 
 
