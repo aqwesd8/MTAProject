@@ -21,24 +21,6 @@ def fillRectangle(gx, canvas, xUL=0, yUL=0, xBR=63, yBR=31, color=graphics.Color
         for x in range(xUL,xBR+1):
             gx.DrawLine(canvas, x,yUL,x,yBR,color)
 
-def printTrainBullet(canvas, x=6, y=6, r=0,b=0,g=0):
-    pixMap = [[0,0,0,0,0,1,1,1,1,0,0,0,0,0],
-    [0,0,0,1,1,1,1,1,1,1,1,0,0,0],
-    [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
-    [0,1,1,1,0,0,0,0,0,0,1,1,1,0],
-    [0,1,1,1,0,0,1,1,1,1,1,1,1,0],
-    [1,1,1,1,0,0,1,1,1,1,1,1,1,1],
-    [1,1,1,1,0,0,0,0,0,0,1,1,1,1],
-    [1,1,1,1,1,1,1,1,0,0,1,1,1,1],
-    [0,1,1,1,0,0,1,1,0,0,1,1,1,0],
-    [0,1,1,1,1,0,0,0,0,1,1,1,1,0],
-    [0,0,1,1,1,1,1,1,1,1,1,1,0,0],
-    [0,0,0,1,1,1,1,1,1,1,1,0,0,0],
-    [0,0,0,0,0,1,1,1,1,0,0,0,0,0]]
-    for i in range(14):
-        for j in range(13):
-            color = (0,0,0) if pixMap[j][i]==0 else (r,b,g)
-            canvas.SetPixel(i+(x-6),j+(y-6),color[0],color[1],color[2])
 
 def scrollText(gx, canvas, leftBoundary, rightBoudary, height, color, text):
     text_length = graphics.DrawText(offscreen_canvas, font, pos, 20, textColor, my_text)
@@ -120,6 +102,7 @@ class RunText(SampleBase):
         secondary_train = 1
         primary_train = 0
         while True:
+            now = time.now()
             offscreen_canvas.Clear()
 
             if train_update==0 and trains_queue.qsize()==0:
@@ -145,7 +128,7 @@ class RunText(SampleBase):
                     reset2 = -1
             
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
-            time.sleep(time_step)
+            
             
             if trains:
                 if pos1==0 and freeze1>0:
@@ -167,6 +150,9 @@ class RunText(SampleBase):
                     pos2 = 0
 
             train_update-=1
+
+            elapsed = time.now()-now
+            time.sleep(max(0,time_step-elapsed))
 
 
 
