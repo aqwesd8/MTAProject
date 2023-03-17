@@ -9,9 +9,15 @@ from PIL import Image
 
 import requests
 import json
+import threading
 from threading import Thread
 from queue import Queue
+import traceback
+import logging
 
+LOG_FILENAME = "Logs/mtatext.log"
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+logging.debug("Startup test in mtatext.py")
 ### MATRIX HELPER FUNCTIONS ###
 
 def fillRectangle(gx, canvas, xUL=0, yUL=0, xBR=63, yBR=31, color=graphics.Color(0,0,0)):
@@ -52,10 +58,42 @@ def printTrainLine(gx, canvas, route_id, font, min_font, destination, mins_left,
 
 def getTrains(stations):
     station_string = ",".join(stations) if len(stations)>1 else stations[0]
-    response = requests.get("http://localhost:5000/train-schedule/%s"%(station_string))
-    trains = json.loads(response.text)
-    return trains
+    try:
+        response = requests.get("http://localhost:5000/train-schedule/%s"%(station_string))
+        trains = json.loads(response.text)
+        valid = trains and len(trains)>0 and trains[0]["destination"] is not None
+        if valid:
+            logging.debug("Valid response returning trains:")
+            logging.debug(str(trains))
+            return trains
 
+        logging.debug("Not valid returning NONE")
+        return None
+    except:
+        logging.exception("Ex in getTrains:")
+        return None
+
+
+server_live = threading.Event()
+
+class ServerLiveThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+
+    def run(self):
+        trains = None
+        try:
+            valid = trains and len(trains)>0 and trains[0]["destination"] is not None
+            while not valid:
+                logging.debug("Startup server still not valid, pinging again")
+                trains = getTrains(["F21"])
+                valid = trains and len(trains)>0 and trains[0]["destination"] is not None
+            logging.debug("Server online, starting UI")
+            server_live.set()
+        except:
+            logging.exception("Ex in ServerLiveThread:")
+            time.sleep(2)
+            self.run()
 
 class GetTrainsThread(Thread):
     def __init__(self, stations, queue):
@@ -63,13 +101,14 @@ class GetTrainsThread(Thread):
         self.trains = []
         self.stations = stations
         self.queue = queue
-    
+
     def setTrains(self, trains):
         self.trains = trains
 
     def run(self):
         self.trains = getTrains(self.stations)
-        self.queue.put(self.trains)
+        if self.trains:
+            self.queue.put(self.trains)
 
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
@@ -101,11 +140,15 @@ class RunText(SampleBase):
         trains = None
         secondary_train = 1
         primary_train = 0
+        
+        t = ServerLiveThread()
+        t.start()
+        server_live.wait()
         while True:
             now = time.time()
             offscreen_canvas.Clear()
 
-            if train_update==0 and trains_queue.qsize()==0:
+            if train_update==0 and trains_queue.qsize()==0 and threading.active_count()==1:
                 train_thread = GetTrainsThread(stations,trains_queue)
                 train_thread.start()
                 train_update = int(train_update_time/time_step)
@@ -149,7 +192,7 @@ class RunText(SampleBase):
                 if reset2<0:
                     pos2 = 0
 
-            train_update-=1
+            train_update= max(0, train_update-1)
 
             elapsed = time.time()-now
             time.sleep(max(0,time_step-elapsed))
