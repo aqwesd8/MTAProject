@@ -1,13 +1,16 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from google.transit import gtfs_realtime_pb2
 import requests
 import datetime
 from util import *
 from feeds import *
+from flask_cors import cross_origin
 
 app = Flask(__name__)
 bmt_feeds = [gtfs_realtime_pb2.FeedMessage() for i in range(len(BMT_FEEDS))]
 irt_feeds = [gtfs_realtime_pb2.FeedMessage() for i in range(len(IRT_FEEDS))]
+default_direction = "N"
+use_default_direction = True
 
 def getAllTrains(feeds, station_names):
     trains = []
@@ -38,10 +41,21 @@ def getFirstNTrains(n, trains):
     n = min(n, len(trains))
     return trains[0:n]
 
+@app.route("/default-direction", methods = ["OPTIONS", "POST", "GET"])
+@cross_origin()
+def set_default():
+      if request.method == "POST":
+        global default_direction
+        default_direction = request.get_json()['direction']
+        return ({"default_direction": default_direction})
+      else:
+        return ({"default_direction": default_direction})
 
 @app.route("/train-schedule/<station_names>")
 def train_schedule(station_names):
     station_names = station_names.split(',')
+    global default_direction
+    station_names = [name + default_direction for name in station_names] if use_default_direction else station_names
     mta_api_key = "ZhfhmnhoOd5hnNRtyT2g18qfyMuJp1TA1bSQIvfd"
     responses = []
 
