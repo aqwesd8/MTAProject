@@ -18,6 +18,13 @@ import logging
 LOG_FILENAME = "Logs/mtatext.log"
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 logging.debug("Startup test in mtatext.py")
+
+#GPIO
+PIN = 35
+DIRECTIONS = ["N", "S"]
+
+
+
 ### MATRIX HELPER FUNCTIONS ###
 
 def fillRectangle(gx, canvas, xUL=0, yUL=0, xBR=63, yBR=31, color=graphics.Color(0,0,0)):
@@ -94,6 +101,7 @@ class ServerLiveThread(Thread):
             logging.exception("Ex in ServerLiveThread:")
             time.sleep(2)
             self.run()
+
 
 class GetTrainsThread(Thread):
     def __init__(self, stations, queue):
